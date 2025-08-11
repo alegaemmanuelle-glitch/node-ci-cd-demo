@@ -1,55 +1,52 @@
-o	name: CI/CD Pipeline
-o	
-o	on:
-o	  push:
-o	    branches:
-o	      - main
-o	  pull_request:
-o	    branches:
-o	      - main
-o	
-o	jobs:
-o	  build-and-test:
-o	    runs-on: ubuntu-latest
-o	
-o	    steps:
-o	      - name: Checkout code
-o	        uses: actions/checkout@v4
-o	
-o	      - name: Set up Node.js
-o	        uses: actions/setup-node@v4
-o	        with:
-o	          node-version: '20'
-o	
-o	      - name: Install dependencies
-o	        run: npm install
-o	
-o	      - name: Run tests
-o	        run: npm run test
-o	
-o	      - name: Build application
-o	        run: npm run build
-o	
-o	      - name: Upload build artifacts
-o	        uses: actions/upload-artifact@v4
-o	        with:
-o	          name: dist
-o	          path: dist/
-o	
-o	  deploy:
-o	    needs: build-and-test
-o	    runs-on: ubuntu-latest
-o	    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-o	
-o	    steps:
-o	      - name: Download build artifacts
-o	        uses: actions/download-artifact@v4
-o	        with:
-o	          name: dist
-o	          path: dist/
-o	
-o	      - name: Deploy to GitHub Pages
-o	        uses: peaceiris/actions-gh-pages@v4
-o	        with:
-o	          github_token: ${{ secrets.GITHUB_TOKEN }}
-o	          publish_dir: ./dist
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm run test 
+
+      - name: Build application
+        run: npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
